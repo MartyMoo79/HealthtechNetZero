@@ -15,7 +15,7 @@ const defaultAssessment: CarbonAssessment = {
 };
 
 const levelInfo = [
-  { level: 1, label: 'Foundation', color: 'from-green-400 to-green-600' },
+  { level: 1, label: 'Foundation', color: 'from-green-300 to-green-600' },
   { level: 2, label: 'Intermediate', color: 'from-green-500 to-green-700' },
   { level: 3, label: 'Advanced', color: 'from-green-600 to-green-800' },
   { level: 4, label: 'Excellence', color: 'from-green-700 to-green-900' }
