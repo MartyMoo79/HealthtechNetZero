@@ -74,59 +74,95 @@ export default function MitigationPlan({ domains, answers, assessmentData, onBac
   };
 
   const exportToPDF = () => {
-    const doc = new jsPDF();
-    
-    doc.setFontSize(20);
-    doc.text('Environmental Impact Mitigation Plan', 20, 20);
-    
+  const doc = new jsPDF();
+  
+  // Set a custom font size and add a header
+  doc.setFontSize(18);
+  doc.setTextColor('#2c3e50');
+  doc.text('Environmental Impact Mitigation Plan', 105, 15, { align: 'center' });
+
+  // Add a horizontal line
+  doc.setDrawColor('#bdc3c7');
+  doc.line(10, 20, 200, 20);
+
+  // Organization details section with background color
+  doc.setFillColor('#ecf0f1');
+  doc.rect(10, 25, 190, 30, 'F');
+  doc.setFontSize(12);
+  doc.setTextColor('#34495e');
+  doc.text('Organisation Details:', 15, 32);
+  doc.setFontSize(10);
+  doc.text(`Organisation: ${assessmentData.organisationName}`, 15, 40);
+  doc.text(`Completed By: ${assessmentData.completedBy}`, 15, 45);
+  doc.text(`Job Role: ${assessmentData.jobRole}`, 15, 50);
+  doc.text(`Date: ${formatDate(assessmentData.completionDate)}`, 15, 55);
+
+  let yPos = 65;
+
+  const sortedActions = getSortedActions();
+  if (sortedActions.length > 0) {
+    doc.setFontSize(14);
+    doc.setTextColor('#2c3e50');
+    doc.text('Mitigation Actions (Sorted by Due Date)', 15, yPos);
+    yPos += 10;
+
+    // Use jsPDF autotable for actions
+    const tableData = sortedActions.map(action => {
+      const domain = domains.find(d =>
+        d.questions.some(q => q.id === action.questionId)
+      );
+      const question = domain?.questions.find(q => q.id === action.questionId);
+
+      return [
+        formatDate(action.dueDate),
+        domain?.title || 'N/A',
+        question?.text || 'N/A',
+        action.action || 'N/A',
+        action.lead || 'N/A',
+      ];
+    });
+
+    doc.autoTable({
+      head: [['Due Date', 'Domain', 'Question', 'Action', 'Lead']],
+      body: tableData,
+      startY: yPos,
+      headStyles: {
+        fillColor: [41, 128, 185],
+        textColor: [255, 255, 255],
+        fontSize: 10,
+        halign: 'center',
+      },
+      bodyStyles: {
+        textColor: [44, 62, 80],
+        fontSize: 10,
+      },
+      columnStyles: {
+        0: { cellWidth: 25 },
+        1: { cellWidth: 40 },
+        2: { cellWidth: 60 },
+        3: { cellWidth: 40 },
+        4: { cellWidth: 25 },
+      },
+      margin: { top: 10, bottom: 10, left: 10, right: 10 },
+    });
+  } else {
     doc.setFontSize(12);
-    doc.text('Organisation Details:', 20, 35);
+    doc.setTextColor('#e74c3c');
+    doc.text('No mitigation actions to display.', 15, yPos);
+  }
+
+  // Add footer with page number
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
     doc.setFontSize(10);
-    doc.text(`Organisation: ${assessmentData.organisationName}`, 20, 45);
-    doc.text(`Completed By: ${assessmentData.completedBy}`, 20, 52);
-    doc.text(`Job Role: ${assessmentData.jobRole}`, 20, 59);
-    doc.text(`Date: ${formatDate(assessmentData.completionDate)}`, 20, 66);
-    
-    let yPos = 80;
+    doc.setTextColor('#95a5a6');
+    doc.text(`Page ${i} of ${pageCount}`, 105, 290, { align: 'center' });
+  }
 
-    const sortedActions = getSortedActions();
-    if (sortedActions.length > 0) {
-      doc.setFontSize(14);
-      doc.text('Actions by Due Date', 20, yPos);
-      yPos += 10;
+  doc.save('mitigation-plan.pdf');
+};
 
-      sortedActions.forEach(action => {
-        const domain = domains.find(d => 
-          d.questions.some(q => q.id === action.questionId)
-        );
-        const question = domain?.questions.find(q => q.id === action.questionId);
-        
-        if (!domain || !question) return;
-
-        if (yPos > 250) {
-          doc.addPage();
-          yPos = 20;
-        }
-
-        doc.setFontSize(12);
-        doc.text(`Due Date: ${formatDate(action.dueDate)}`, 20, yPos);
-        yPos += 7;
-        
-        doc.text(`Domain: ${domain.title}`, 20, yPos);
-        yPos += 7;
-
-        doc.setFontSize(10);
-        const splitQuestion = doc.splitTextToSize(`Question: ${question.text}`, 170);
-        doc.text(splitQuestion, 20, yPos);
-        yPos += splitQuestion.length * 5 + 5;
-
-        const splitAction = doc.splitTextToSize(`Action: ${action.action}`, 170);
-        doc.text(splitAction, 20, yPos);
-        yPos += splitAction.length * 5 + 5;
-
-        doc.text(`Lead: ${action.lead}`, 20, yPos);
-        yPos += 15;
-      });
     }
     
     doc.save('mitigation-plan.pdf');
