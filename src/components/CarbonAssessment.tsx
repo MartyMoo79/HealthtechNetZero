@@ -82,7 +82,7 @@ export default function CarbonAssessmentForm({ onSubmit, onBack, initialData }: 
             <Leaf className="w-12 h-12 text-green-600" />
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Carbon Assessment</h1>
-              <p className="text-gray-600">Evaluate your organization's carbon reduction initiatives</p>
+              <p className="text-gray-600">Evaluate your organisation's carbon reduction initiatives</p>
             </div>
           </div>
 
