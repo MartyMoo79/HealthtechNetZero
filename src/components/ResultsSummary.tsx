@@ -27,7 +27,7 @@ interface Props {
 
 const categoryColors = {
   'Positive Environmental Impact': {
-    bg: '#73bfb8',
+    bg: 'bg-green-400',
     text: 'text-green-800',
     border: 'border-green-200',
     icon: <ShieldCheck className="w-8 h-8 text-green-600" />
